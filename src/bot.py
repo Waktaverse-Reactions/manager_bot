@@ -2,11 +2,14 @@ import os
 import asyncio
 import traceback
 
-from discord import Game, Embed, Intents
-from discord.ext import commands
 from dotenv import load_dotenv
+from datetime import datetime
+
+from discord import File, Game, Embed, Intents
+from discord.ext import commands
 
 from services.crawlService import CrawlService
+from plugins.saveThumbnail import SaveThumbnailPlugin
 
 load_dotenv()
 
@@ -14,6 +17,7 @@ bot = commands.Bot(command_prefix="wr!", intents=Intents.all(), application_id=o
 bot.remove_command("help")
 
 crawlService = CrawlService()
+saveThumbnailPlugin = SaveThumbnailPlugin()
 
 
 async def load_extensions():
@@ -50,11 +54,20 @@ async def on_ready():
             crawled = await crawlService.checkForNewPosts()
 
             for post in crawled:
-                embed = Embed(title=post.subject, description=f"[같이보기 링크]({post.url})")
-                embed.set_image(url=post.thumbnail)
+                thumbnail = saveThumbnailPlugin.save_thumbnail(post.thumbnail)
+                attachment = File(thumbnail, filename=thumbnail.split("/")[-1])
 
-                await channel.send(embed=embed)
-                await asyncio.sleep(5)
+                embed = Embed(
+                    title=post.subject,
+                    type="article",
+                    url=post.url,
+                    description=f"[같이보기 링크]({post.url})",
+                    timestamp=post.posted_at,
+                )
+                embed.set_image(url=f"attachment://{thumbnail.split("/")[-1]}")
+
+                await channel.send(file=attachment, embed=embed)
+                saveThumbnailPlugin.remove_thumbnail(thumbnail)
 
             await asyncio.sleep(60 * 5)
     except:
@@ -65,8 +78,10 @@ async def on_ready():
             channel = bot.get_channel(int(os.getenv("DISCORD_CHANNEL_ID")))
             embed = Embed(
                 title=":warning: 크롤링에 문제가 발생했습니다.",
+                type="article",
                 description=f"```{traceback.format_exc()}```",
-                color=16711680,
+                colour=16711680,
+                timestamp=datetime.now(),
             )
 
             await channel.send(embed=embed)

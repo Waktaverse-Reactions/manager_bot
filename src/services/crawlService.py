@@ -1,7 +1,9 @@
 import sqlite3
+from datetime import datetime
 
 from httpx import AsyncClient, AsyncHTTPTransport
 from uuid import uuid4
+
 from pydantic import BaseModel
 
 from constants import crawl as CrawlConstants
@@ -11,6 +13,7 @@ class CrawledPostLink(BaseModel):
     url: str
     subject: str
     thumbnail: str
+    posted_at: datetime
 
 
 class CrawlService:
@@ -77,6 +80,7 @@ class CrawlService:
                             thumbnail=str(article["representImage"])
                             .replace("cafethumb.pstatic.net", "cafeptthumb-phinf.pstatic.net")
                             .replace("?type=f100_100", ""),
+                            posted_at=datetime.fromtimestamp(article["writeDateTimestamp"] / 1000),
                         )
                     )
             # endregion
