@@ -54,6 +54,7 @@ async def on_ready():
                 embed.set_image(url=post.thumbnail)
 
                 await channel.send(embed=embed)
+                await asyncio.sleep(5)
 
             await asyncio.sleep(60 * 5)
     except:

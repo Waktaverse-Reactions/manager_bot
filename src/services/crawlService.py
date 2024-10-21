@@ -45,7 +45,7 @@ class CrawlService:
                 + f"?search.clubid={CrawlConstants.NAVER_CAFE_CLUBID}"
                 + f"&search.menuid={CrawlConstants.NAVER_CAFE_MENUID}"
                 + "&search.queryType=lastArticle"
-                + "&search.page=1&search.perPage=15"
+                + "&search.page=1&search.perPage=30"
                 + f"&uuid={uuid4()}"
                 + "&ad=false&adUnit=MW_CAFE_ARTICLE_LIST_RS",
             )
