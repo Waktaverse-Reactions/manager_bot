@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  manager-bot:
+    image: ghcr.io/waktaverse-reactions/manager_bot:latest
+    env_file:
+      - .env
+    volumes:
+      - ./database:/usr/app/database
+    restart: always
